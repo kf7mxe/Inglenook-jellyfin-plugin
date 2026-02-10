@@ -1,0 +1,73 @@
+# --- Build & Dependency Directories ---
+[Bb]in/
+[Oo]bj/
+packages/
+node_modules/
+
+# --- Jellyfin / .NET Specifics ---
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+*.dll
+*.exe
+*.pdb
+
+# Nuget
+*.nupkg
+*.snupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# If applying to the root packages folder, uncomment the following line:
+#!packages/build/
+
+# --- IDE Specifics ---
+
+# Visual Studio
+.vs/
+*.suo
+*.jfm
+*.ice
+*.userprefs
+
+# Visual Studio Code
+.vscode/
+# Keep settings.json if it contains shared project settings, otherwise ignore:
+#.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+*.code-workspace
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# --- Operating System Files ---
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# --- Packaging & Logs ---
+*.zip
+*.tar.gz
+*.log
+test-results/
