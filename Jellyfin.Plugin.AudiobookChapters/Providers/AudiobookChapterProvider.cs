@@ -41,8 +41,7 @@ public class AudiobookChapterProvider : ICustomMetadataProvider<MediaBrowser.Con
         _libraryManager = libraryManager;
         _chapterRepository = chapterRepository;
         _aggregator = new MetadataAggregator(
-            loggerFactory.CreateLogger<MetadataAggregator>(),
-            loggerFactory);
+            loggerFactory.CreateLogger<MetadataAggregator>());
     }
 
     /// <inheritdoc />
@@ -253,8 +252,7 @@ public class BookChapterProvider : ICustomMetadataProvider<Book>, IHasItemChange
         _libraryManager = libraryManager;
         _chapterRepository = chapterRepository;
         _aggregator = new MetadataAggregator(
-            loggerFactory.CreateLogger<MetadataAggregator>(),
-            loggerFactory);
+            loggerFactory.CreateLogger<MetadataAggregator>());
     }
 
     /// <inheritdoc />
@@ -369,8 +367,7 @@ public class AudioBookChapterProvider : ICustomMetadataProvider<AudioBook>, IHas
         _libraryManager = libraryManager;
         _chapterRepository = chapterRepository;
         _aggregator = new MetadataAggregator(
-            loggerFactory.CreateLogger<MetadataAggregator>(),
-            loggerFactory);
+            loggerFactory.CreateLogger<MetadataAggregator>());
     }
 
     /// <inheritdoc />

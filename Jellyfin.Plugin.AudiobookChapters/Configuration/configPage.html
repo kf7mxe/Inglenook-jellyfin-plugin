@@ -74,29 +74,6 @@
                     </div>
 
                     <div class="verticalSection">
-                        <h3 class="sectionTitle">Multi-File Audiobooks</h3>
-
-                        <div class="checkboxContainer checkboxContainer-withDescription">
-                            <label>
-                                <input type="checkbox" is="emby-checkbox" id="EnableMultiFileDetection" />
-                                <span>Enable Multi-File Detection</span>
-                            </label>
-                            <div class="fieldDescription">Detect audiobooks where each chapter is a separate audio file and create chapter entries for them.</div>
-                        </div>
-
-                        <div class="selectContainer">
-                            <label class="selectLabel" for="MultiFileChapterNaming">Chapter Naming Strategy</label>
-                            <select is="emby-select" id="MultiFileChapterNaming" class="emby-select-withcolor">
-                                <option value="UseFilename">Use Filename</option>
-                                <option value="UseMetadataTitle">Use Metadata Title</option>
-                                <option value="UseSequentialNumbering">Use Sequential Numbering</option>
-                                <option value="ParseFilenamePattern">Parse Filename Pattern</option>
-                            </select>
-                            <div class="fieldDescription">How to name chapters created from multi-file audiobooks.</div>
-                        </div>
-                    </div>
-
-                    <div class="verticalSection">
                         <h3 class="sectionTitle">Advanced</h3>
 
                         <div class="inputContainer">
@@ -166,8 +143,6 @@
                     page.querySelector('#EnableNfoFiles').checked = config.EnableNfoFiles;
                     page.querySelector('#EnableFfmetadata').checked = config.EnableFfmetadata;
                     page.querySelector('#EnableTextFiles').checked = config.EnableTextFiles;
-                    page.querySelector('#EnableMultiFileDetection').checked = config.EnableMultiFileDetection;
-                    page.querySelector('#MultiFileChapterNaming').value = config.MultiFileChapterNaming;
                     page.querySelector('#MetadataPriority').value = config.MetadataPriority;
                     loadLibraries(page, config.EnabledLibraryIds || []);
                     Dashboard.hideLoadingMsg();
@@ -197,8 +172,6 @@
                         config.EnableNfoFiles = page.querySelector('#EnableNfoFiles').checked;
                         config.EnableFfmetadata = page.querySelector('#EnableFfmetadata').checked;
                         config.EnableTextFiles = page.querySelector('#EnableTextFiles').checked;
-                        config.EnableMultiFileDetection = page.querySelector('#EnableMultiFileDetection').checked;
-                        config.MultiFileChapterNaming = page.querySelector('#MultiFileChapterNaming').value;
                         config.MetadataPriority = page.querySelector('#MetadataPriority').value;
 
                         var selectedLibraries = [];

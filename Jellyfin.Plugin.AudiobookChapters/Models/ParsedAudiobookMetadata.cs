@@ -111,30 +111,3 @@ public class ParsedAudiobookMetadata
         HasChapters ||
         !string.IsNullOrEmpty(Description);
 }
-
-/// <summary>
-/// Represents a single audio file in a multi-file audiobook.
-/// </summary>
-public class AudiobookFile
-{
-    /// <summary>Gets or sets the full file path.</summary>
-    public string Path { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the file name without extension.</summary>
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the sort order.</summary>
-    public int? SortOrder { get; set; }
-
-    /// <summary>Gets or sets the track number parsed from the filename.</summary>
-    public int? TrackNumber { get; set; }
-
-    /// <summary>Gets or sets the chapter title parsed from the filename.</summary>
-    public string? Title { get; set; }
-
-    /// <summary>Gets or sets the file duration in ticks.</summary>
-    public long DurationTicks { get; set; }
-
-    /// <summary>Gets or sets the cumulative start position in ticks.</summary>
-    public long StartPositionTicks { get; set; }
-}

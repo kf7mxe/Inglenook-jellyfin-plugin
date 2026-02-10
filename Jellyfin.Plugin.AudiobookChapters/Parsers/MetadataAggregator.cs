@@ -11,14 +11,12 @@ public class MetadataAggregator
 {
     private readonly ILogger<MetadataAggregator> _logger;
     private readonly List<IMetadataParser> _parsers;
-    private readonly MultiFileAudiobookHandler _multiFileHandler;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetadataAggregator"/> class.
     /// </summary>
     public MetadataAggregator(
-        ILogger<MetadataAggregator> logger,
-        ILoggerFactory loggerFactory)
+        ILogger<MetadataAggregator> logger)
     {
         _logger = logger;
         _parsers = new List<IMetadataParser>
@@ -30,8 +28,6 @@ public class MetadataAggregator
             new CueParser(),
             new SimpleTextParser()
         };
-        _multiFileHandler = new MultiFileAudiobookHandler(
-            loggerFactory.CreateLogger<MultiFileAudiobookHandler>());
     }
 
     /// <summary>
@@ -72,28 +68,6 @@ public class MetadataAggregator
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to parse {File} with {Parser}", filePath, parser.Name);
-            }
-        }
-
-        // Multi-file audiobook detection
-        if (config.EnableMultiFileDetection)
-        {
-            try
-            {
-                var multiFileResult = await _multiFileHandler.CreateMetadataFromDirectoryAsync(
-                    directory,
-                    config.MultiFileChapterNaming,
-                    cancellationToken).ConfigureAwait(false);
-
-                if (multiFileResult is not null)
-                {
-                    _logger.LogDebug("Detected multi-file audiobook in {Directory}", directory);
-                    results.Add(multiFileResult);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed multi-file detection for {Directory}", directory);
             }
         }
 
@@ -249,11 +223,10 @@ public class MetadataAggregator
             }
         }
 
-        // Chapters: prefer explicit chapter sources over multi-file, then prefer more chapters
+        // Chapters: prefer the source with the most chapters
         var chapterSources = sorted
             .Where(s => s.HasChapters)
-            .OrderBy(s => s.SourceType == "multifile" ? 1 : 0) // Prefer explicit over multi-file
-            .ThenByDescending(s => s.Chapters.Count) // Then prefer more chapters
+            .OrderByDescending(s => s.Chapters.Count)
             .ToList();
 
         if (chapterSources.Count > 0)

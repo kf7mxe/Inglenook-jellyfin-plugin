@@ -8,14 +8,13 @@ category: "Metadata"
 description: >
   Extracts chapter and metadata information from sidecar files for audiobooks.
   Supports CUE sheets, OPF (Calibre/EPUB), JSON metadata, NFO (Kodi/XBMC),
-  FFmpeg metadata, and simple text files. Also detects multi-file audiobooks
-  where each chapter is a separate audio file and creates chapter entries.
+  FFmpeg metadata, and simple text files.
 artifacts:
   - "Jellyfin.Plugin.AudiobookChapters.dll"
 changelog: |
   ## v1.0.0.0
   - Initial release
   - Support for .cue, .opf, .json, .nfo, .ffmetadata, and .txt metadata files
-  - Multi-file audiobook detection and chapter creation
   - Configurable metadata source priority
+  - Library selection for targeted scanning
   - Admin configuration page
