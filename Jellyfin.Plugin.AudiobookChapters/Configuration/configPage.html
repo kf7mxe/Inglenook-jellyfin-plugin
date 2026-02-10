@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audiobook Chapters</title>
+</head>
+<body>
+    <div id="AudiobookChaptersConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
+         data-require="emby-input,emby-button,emby-checkbox,emby-select">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="AudiobookChaptersConfigForm">
+                    <div class="sectionTitleContainer flex align-items-center">
+                        <h2 class="sectionTitle">Audiobook Chapters Settings</h2>
+                    </div>
+
+                    <div class="verticalSection">
+                        <h3 class="sectionTitle">Library Selection</h3>
+                        <div class="fieldDescription" style="margin-bottom: 1em;">Select which libraries the plugin should scan for audiobook metadata. If none are selected, all libraries will be scanned.</div>
+                        <div id="LibraryList">
+                            <div class="fieldDescription">Loading libraries...</div>
+                        </div>
+                    </div>
+
+                    <div class="verticalSection">
+                        <h3 class="sectionTitle">Enabled Metadata Sources</h3>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableCueFiles" />
+                                <span>CUE Files (.cue)</span>
+                            </label>
+                            <div class="fieldDescription">Parse CUE sheet files for chapter markers and metadata.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableOpfFiles" />
+                                <span>OPF Files (.opf)</span>
+                            </label>
+                            <div class="fieldDescription">Parse OPF (Calibre/EPUB) metadata files for book information.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableJsonMetadata" />
+                                <span>JSON Metadata (.json)</span>
+                            </label>
+                            <div class="fieldDescription">Parse JSON metadata files (metadata.json, abs.json, chapters.json, etc.).</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableNfoFiles" />
+                                <span>NFO Files (.nfo)</span>
+                            </label>
+                            <div class="fieldDescription">Parse NFO (Kodi/XBMC) metadata files.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableFfmetadata" />
+                                <span>FFmetadata Files (.ffmetadata)</span>
+                            </label>
+                            <div class="fieldDescription">Parse FFmpeg metadata files for chapter information.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableTextFiles" />
+                                <span>Text Files (.txt)</span>
+                            </label>
+                            <div class="fieldDescription">Parse simple text files (chapters.txt, desc.txt, info.txt, etc.).</div>
+                        </div>
+                    </div>
+
+                    <div class="verticalSection">
+                        <h3 class="sectionTitle">Multi-File Audiobooks</h3>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableMultiFileDetection" />
+                                <span>Enable Multi-File Detection</span>
+                            </label>
+                            <div class="fieldDescription">Detect audiobooks where each chapter is a separate audio file and create chapter entries for them.</div>
+                        </div>
+
+                        <div class="selectContainer">
+                            <label class="selectLabel" for="MultiFileChapterNaming">Chapter Naming Strategy</label>
+                            <select is="emby-select" id="MultiFileChapterNaming" class="emby-select-withcolor">
+                                <option value="UseFilename">Use Filename</option>
+                                <option value="UseMetadataTitle">Use Metadata Title</option>
+                                <option value="UseSequentialNumbering">Use Sequential Numbering</option>
+                                <option value="ParseFilenamePattern">Parse Filename Pattern</option>
+                            </select>
+                            <div class="fieldDescription">How to name chapters created from multi-file audiobooks.</div>
+                        </div>
+                    </div>
+
+                    <div class="verticalSection">
+                        <h3 class="sectionTitle">Advanced</h3>
+
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="MetadataPriority">Metadata Priority Order</label>
+                            <input is="emby-input" type="text" id="MetadataPriority"
+                                   placeholder="opf,json,nfo,cue,ffmetadata,txt" />
+                            <div class="fieldDescription">Comma-separated list of metadata source priority (highest first). Sources: opf, json, nfo, cue, ffmetadata, txt</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            console.log('[AudiobookChapters] Script loaded');
+
+            var AudiobookChaptersConfig = {
+                pluginUniqueId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+            };
+
+            function loadLibraries(page, enabledIds) {
+                var url = ApiClient.getUrl('Library/VirtualFolders');
+                console.log('[AudiobookChapters] Fetching libraries from:', url);
+                fetch(url, {
+                    headers: { 'X-Emby-Token': ApiClient.accessToken() }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (libraries) {
+                    console.log('[AudiobookChapters] Libraries:', libraries);
+                    var container = page.querySelector('#LibraryList');
+                    if (!libraries || libraries.length === 0) {
+                        container.innerHTML = '<div class="fieldDescription">No libraries found.</div>';
+                        return;
+                    }
+                    var html = '';
+                    for (var i = 0; i < libraries.length; i++) {
+                        var lib = libraries[i];
+                        var isChecked = enabledIds && enabledIds.indexOf(lib.ItemId) !== -1 ? ' checked' : '';
+                        var typeLabel = lib.CollectionType ? ' (' + lib.CollectionType + ')' : '';
+                        html += '<div class="checkboxContainer checkboxContainer-withDescription">';
+                        html += '<label>';
+                        html += '<input type="checkbox" is="emby-checkbox" class="chkLibrary" data-id="' + lib.ItemId + '"' + isChecked + ' />';
+                        html += '<span>' + lib.Name + typeLabel + '</span>';
+                        html += '</label>';
+                        html += '</div>';
+                    }
+                    container.innerHTML = html;
+                }).catch(function (err) {
+                    console.error('[AudiobookChapters] Error loading libraries:', err);
+                    page.querySelector('#LibraryList').innerHTML = '<div class="fieldDescription">Failed to load libraries: ' + err.message + '</div>';
+                });
+            }
+
+            function loadConfig(page) {
+                console.log('[AudiobookChapters] Loading config...');
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(AudiobookChaptersConfig.pluginUniqueId).then(function (config) {
+                    console.log('[AudiobookChapters] Config loaded:', config);
+                    page.querySelector('#EnableCueFiles').checked = config.EnableCueFiles;
+                    page.querySelector('#EnableOpfFiles').checked = config.EnableOpfFiles;
+                    page.querySelector('#EnableJsonMetadata').checked = config.EnableJsonMetadata;
+                    page.querySelector('#EnableNfoFiles').checked = config.EnableNfoFiles;
+                    page.querySelector('#EnableFfmetadata').checked = config.EnableFfmetadata;
+                    page.querySelector('#EnableTextFiles').checked = config.EnableTextFiles;
+                    page.querySelector('#EnableMultiFileDetection').checked = config.EnableMultiFileDetection;
+                    page.querySelector('#MultiFileChapterNaming').value = config.MultiFileChapterNaming;
+                    page.querySelector('#MetadataPriority').value = config.MetadataPriority;
+                    loadLibraries(page, config.EnabledLibraryIds || []);
+                    Dashboard.hideLoadingMsg();
+                });
+            }
+
+            var page = document.querySelector('#AudiobookChaptersConfigPage');
+            console.log('[AudiobookChapters] Page element:', page ? 'found' : 'NOT FOUND');
+
+            page.addEventListener('pageshow', function () {
+                console.log('[AudiobookChapters] pageshow event fired');
+                loadConfig(this);
+            });
+
+            page.addEventListener('viewshow', function () {
+                console.log('[AudiobookChapters] viewshow event fired');
+                loadConfig(this);
+            });
+
+            page.querySelector('#AudiobookChaptersConfigForm')
+                .addEventListener('submit', function (e) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(AudiobookChaptersConfig.pluginUniqueId).then(function (config) {
+                        config.EnableCueFiles = page.querySelector('#EnableCueFiles').checked;
+                        config.EnableOpfFiles = page.querySelector('#EnableOpfFiles').checked;
+                        config.EnableJsonMetadata = page.querySelector('#EnableJsonMetadata').checked;
+                        config.EnableNfoFiles = page.querySelector('#EnableNfoFiles').checked;
+                        config.EnableFfmetadata = page.querySelector('#EnableFfmetadata').checked;
+                        config.EnableTextFiles = page.querySelector('#EnableTextFiles').checked;
+                        config.EnableMultiFileDetection = page.querySelector('#EnableMultiFileDetection').checked;
+                        config.MultiFileChapterNaming = page.querySelector('#MultiFileChapterNaming').value;
+                        config.MetadataPriority = page.querySelector('#MetadataPriority').value;
+
+                        var selectedLibraries = [];
+                        var checkboxes = page.querySelectorAll('.chkLibrary');
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].checked) {
+                                selectedLibraries.push(checkboxes[i].getAttribute('data-id'));
+                            }
+                        }
+                        config.EnabledLibraryIds = selectedLibraries;
+
+                        ApiClient.updatePluginConfiguration(AudiobookChaptersConfig.pluginUniqueId, config).then(function () {
+                            Dashboard.processPluginConfigurationUpdateResult();
+                        });
+                    });
+                    e.preventDefault();
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+</html>
