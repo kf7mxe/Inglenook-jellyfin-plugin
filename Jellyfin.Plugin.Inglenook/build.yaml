@@ -1,16 +1,16 @@
-name: "Audiobook Chapters"
+name: "Inglenook"
 guid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 version: "1.0.0.0"
 targetAbi: "10.11.0.0"
 framework: "net9.0"
-owner: "AudiobookChapters"
+owner: "Inglenook"
 category: "Metadata"
 description: >
   Extracts chapter and metadata information from sidecar files for audiobooks.
   Supports CUE sheets, OPF (Calibre/EPUB), JSON metadata, NFO (Kodi/XBMC),
   FFmpeg metadata, and simple text files.
 artifacts:
-  - "Jellyfin.Plugin.AudiobookChapters.dll"
+  - "Jellyfin.Plugin.Inglenook.dll"
 changelog: |
   ## v1.0.0.0
   - Initial release

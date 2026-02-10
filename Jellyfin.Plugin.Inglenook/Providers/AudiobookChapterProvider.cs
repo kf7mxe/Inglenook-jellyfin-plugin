@@ -1,4 +1,4 @@
-using Jellyfin.Plugin.AudiobookChapters.Parsers;
+using Jellyfin.Plugin.Inglenook.Parsers;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Persistence;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 #pragma warning disable CA1862 // Use StringComparison for string comparisons - Guid.ToString() is culture-invariant
 
-namespace Jellyfin.Plugin.AudiobookChapters.Providers;
+namespace Jellyfin.Plugin.Inglenook.Providers;
 
 /// <summary>
 /// Metadata provider for audiobook chapters on Audio items.
@@ -26,7 +26,7 @@ public class AudiobookChapterProvider : ICustomMetadataProvider<MediaBrowser.Con
     private readonly MetadataAggregator _aggregator;
 
     /// <inheritdoc />
-    public string Name => "Audiobook Chapters";
+    public string Name => "Inglenook";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AudiobookChapterProvider"/> class.
@@ -237,7 +237,7 @@ public class BookChapterProvider : ICustomMetadataProvider<Book>, IHasItemChange
     private readonly MetadataAggregator _aggregator;
 
     /// <inheritdoc />
-    public string Name => "Audiobook Chapters (Books)";
+    public string Name => "Inglenook (Books)";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BookChapterProvider"/> class.
@@ -352,7 +352,7 @@ public class AudioBookChapterProvider : ICustomMetadataProvider<AudioBook>, IHas
     private readonly MetadataAggregator _aggregator;
 
     /// <inheritdoc />
-    public string Name => "Audiobook Chapters";
+    public string Name => "Inglenook";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AudioBookChapterProvider"/> class.

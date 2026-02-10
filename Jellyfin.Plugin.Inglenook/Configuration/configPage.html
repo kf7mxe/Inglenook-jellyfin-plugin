@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audiobook Chapters</title>
+    <title>Inglenook</title>
 </head>
 <body>
-    <div id="AudiobookChaptersConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
+    <div id="InglenookConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
          data-require="emby-input,emby-button,emby-checkbox,emby-select">
         <div data-role="content">
             <div class="content-primary">
-                <form id="AudiobookChaptersConfigForm">
+                <form id="InglenookConfigForm">
                     <div class="sectionTitleContainer flex align-items-center">
-                        <h2 class="sectionTitle">Audiobook Chapters Settings</h2>
+                        <h2 class="sectionTitle">Inglenook Settings</h2>
                     </div>
 
                     <div class="verticalSection">
@@ -93,21 +93,21 @@
             </div>
         </div>
         <script type="text/javascript">
-            console.log('[AudiobookChapters] Script loaded');
+            console.log('[Inglenook] Script loaded');
 
-            var AudiobookChaptersConfig = {
+            var InglenookConfig = {
                 pluginUniqueId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
             };
 
             function loadLibraries(page, enabledIds) {
                 var url = ApiClient.getUrl('Library/VirtualFolders');
-                console.log('[AudiobookChapters] Fetching libraries from:', url);
+                console.log('[Inglenook] Fetching libraries from:', url);
                 fetch(url, {
                     headers: { 'X-Emby-Token': ApiClient.accessToken() }
                 }).then(function (response) {
                     return response.json();
                 }).then(function (libraries) {
-                    console.log('[AudiobookChapters] Libraries:', libraries);
+                    console.log('[Inglenook] Libraries:', libraries);
                     var container = page.querySelector('#LibraryList');
                     if (!libraries || libraries.length === 0) {
                         container.innerHTML = '<div class="fieldDescription">No libraries found.</div>';
@@ -127,16 +127,16 @@
                     }
                     container.innerHTML = html;
                 }).catch(function (err) {
-                    console.error('[AudiobookChapters] Error loading libraries:', err);
+                    console.error('[Inglenook] Error loading libraries:', err);
                     page.querySelector('#LibraryList').innerHTML = '<div class="fieldDescription">Failed to load libraries: ' + err.message + '</div>';
                 });
             }
 
             function loadConfig(page) {
-                console.log('[AudiobookChapters] Loading config...');
+                console.log('[Inglenook] Loading config...');
                 Dashboard.showLoadingMsg();
-                ApiClient.getPluginConfiguration(AudiobookChaptersConfig.pluginUniqueId).then(function (config) {
-                    console.log('[AudiobookChapters] Config loaded:', config);
+                ApiClient.getPluginConfiguration(InglenookConfig.pluginUniqueId).then(function (config) {
+                    console.log('[Inglenook] Config loaded:', config);
                     page.querySelector('#EnableCueFiles').checked = config.EnableCueFiles;
                     page.querySelector('#EnableOpfFiles').checked = config.EnableOpfFiles;
                     page.querySelector('#EnableJsonMetadata').checked = config.EnableJsonMetadata;
@@ -149,23 +149,23 @@
                 });
             }
 
-            var page = document.querySelector('#AudiobookChaptersConfigPage');
-            console.log('[AudiobookChapters] Page element:', page ? 'found' : 'NOT FOUND');
+            var page = document.querySelector('#InglenookConfigPage');
+            console.log('[Inglenook] Page element:', page ? 'found' : 'NOT FOUND');
 
             page.addEventListener('pageshow', function () {
-                console.log('[AudiobookChapters] pageshow event fired');
+                console.log('[Inglenook] pageshow event fired');
                 loadConfig(this);
             });
 
             page.addEventListener('viewshow', function () {
-                console.log('[AudiobookChapters] viewshow event fired');
+                console.log('[Inglenook] viewshow event fired');
                 loadConfig(this);
             });
 
-            page.querySelector('#AudiobookChaptersConfigForm')
+            page.querySelector('#InglenookConfigForm')
                 .addEventListener('submit', function (e) {
                     Dashboard.showLoadingMsg();
-                    ApiClient.getPluginConfiguration(AudiobookChaptersConfig.pluginUniqueId).then(function (config) {
+                    ApiClient.getPluginConfiguration(InglenookConfig.pluginUniqueId).then(function (config) {
                         config.EnableCueFiles = page.querySelector('#EnableCueFiles').checked;
                         config.EnableOpfFiles = page.querySelector('#EnableOpfFiles').checked;
                         config.EnableJsonMetadata = page.querySelector('#EnableJsonMetadata').checked;
@@ -183,7 +183,7 @@
                         }
                         config.EnabledLibraryIds = selectedLibraries;
 
-                        ApiClient.updatePluginConfiguration(AudiobookChaptersConfig.pluginUniqueId, config).then(function () {
+                        ApiClient.updatePluginConfiguration(InglenookConfig.pluginUniqueId, config).then(function () {
                             Dashboard.processPluginConfigurationUpdateResult();
                         });
                     });

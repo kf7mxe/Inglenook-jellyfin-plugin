@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Api;
+namespace Jellyfin.Plugin.Inglenook.Api;
 
 /// <summary>
 /// API controller that exposes chapters for audiobook items.
@@ -14,16 +14,16 @@ namespace Jellyfin.Plugin.AudiobookChapters.Api;
 /// </summary>
 [ApiController]
 [Authorize]
-[Route("AudiobookChapters")]
-public class AudiobookChaptersController : ControllerBase
+[Route("Inglenook")]
+public class InglenookController : ControllerBase
 {
     private readonly ILibraryManager _libraryManager;
     private readonly IChapterRepository _chapterRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AudiobookChaptersController"/> class.
+    /// Initializes a new instance of the <see cref="InglenookController"/> class.
     /// </summary>
-    public AudiobookChaptersController(
+    public InglenookController(
         ILibraryManager libraryManager,
         IChapterRepository chapterRepository)
     {

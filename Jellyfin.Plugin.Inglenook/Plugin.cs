@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Jellyfin.Plugin.AudiobookChapters.Configuration;
+using Jellyfin.Plugin.Inglenook.Configuration;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
 
-namespace Jellyfin.Plugin.AudiobookChapters;
+namespace Jellyfin.Plugin.Inglenook;
 
 /// <summary>
-/// Audiobook Chapters plugin for Jellyfin.
+/// Inglenook plugin for Jellyfin.
 /// Extracts chapter and metadata information from sidecar files for audiobooks.
 /// </summary>
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
@@ -20,7 +20,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public static Plugin? Instance { get; private set; }
 
     /// <inheritdoc />
-    public override string Name => "Audiobook Chapters";
+    public override string Name => "Inglenook";
 
     /// <inheritdoc />
     public override Guid Id => new("a1b2c3d4-e5f6-7890-abcd-ef1234567890");

@@ -1,6 +1,6 @@
-using Jellyfin.Plugin.AudiobookChapters.Models;
+using Jellyfin.Plugin.Inglenook.Models;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Parsers;
+namespace Jellyfin.Plugin.Inglenook.Parsers;
 
 /// <summary>
 /// Interface for all audiobook metadata parsers.

@@ -1,0 +1,16 @@
+{
+  "category": "Metadata",
+  "changelog": "",
+  "description": "Extracts chapter and metadata information from sidecar files for audiobooks.",
+  "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "Inglenook",
+  "overview": "Audiobook chapter and metadata extraction from sidecar files",
+  "owner": "Inglenook",
+  "targetAbi": "10.11.0.0",
+  "timestamp": "2026-02-10T00:00:00.0000000Z",
+  "version": "1.0.0.0",
+  "status": "Active",
+  "autoUpdate": false,
+  "imagePath": "",
+  "assemblies": []
+}

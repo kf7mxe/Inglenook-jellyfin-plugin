@@ -1,9 +1,9 @@
 using MediaBrowser.Model.Plugins;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Configuration;
+namespace Jellyfin.Plugin.Inglenook.Configuration;
 
 /// <summary>
-/// Plugin configuration for Audiobook Chapters.
+/// Plugin configuration for Inglenook.
 /// </summary>
 public class PluginConfiguration : BasePluginConfiguration
 {

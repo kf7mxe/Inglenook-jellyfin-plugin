@@ -1,8 +1,8 @@
-using Jellyfin.Plugin.AudiobookChapters.Configuration;
-using Jellyfin.Plugin.AudiobookChapters.Models;
+using Jellyfin.Plugin.Inglenook.Configuration;
+using Jellyfin.Plugin.Inglenook.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Parsers;
+namespace Jellyfin.Plugin.Inglenook.Parsers;
 
 /// <summary>
 /// Orchestrates metadata parsing from multiple sources and merges results.

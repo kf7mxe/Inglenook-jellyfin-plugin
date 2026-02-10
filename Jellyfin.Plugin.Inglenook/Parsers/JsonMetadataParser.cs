@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Jellyfin.Plugin.AudiobookChapters.Models;
+using Jellyfin.Plugin.Inglenook.Models;
 using MediaBrowser.Model.Entities;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Parsers;
+namespace Jellyfin.Plugin.Inglenook.Parsers;
 
 /// <summary>
 /// Parser for JSON metadata files supporting multiple formats.

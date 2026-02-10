@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Jellyfin.Plugin.AudiobookChapters.Models;
+using Jellyfin.Plugin.Inglenook.Models;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Parsers;
+namespace Jellyfin.Plugin.Inglenook.Parsers;
 
 /// <summary>
 /// Parser for OPF (Calibre/EPUB) metadata files.

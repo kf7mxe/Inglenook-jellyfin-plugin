@@ -1,6 +1,6 @@
 using MediaBrowser.Model.Entities;
 
-namespace Jellyfin.Plugin.AudiobookChapters.Models;
+namespace Jellyfin.Plugin.Inglenook.Models;
 
 /// <summary>
 /// Unified model for audiobook metadata parsed from any source.
