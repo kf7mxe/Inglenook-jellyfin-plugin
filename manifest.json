@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "85a30ae6-b3fd-42ed-899b-419c1b0fe10d",
+    "name": "Inglenook",
+    "overview": "Audiobook chapter and metadata extraction from sidecar files",
+    "description": "Plugin to add necessary features for Inglenook client app. Extracts chapter and metadata information from sidecar files for audiobooks. Supports CUE sheets, OPF (Calibre/EPUB), JSON metadata, NFO (Kodi/XBMC), FFmpeg metadata, and simple text files.",
+    "owner": "Inglenook",
+    "category": "Metadata",
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "Initial release",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "",
+        "checksum": "",
+        "timestamp": "2026-02-10T00:00:00Z"
+      }
+    ]
+  }
+]

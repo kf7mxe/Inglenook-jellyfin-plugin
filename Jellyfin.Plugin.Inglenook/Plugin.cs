@@ -23,7 +23,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override string Name => "Inglenook";
 
     /// <inheritdoc />
-    public override Guid Id => new("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+    public override Guid Id => new("85a30ae6-b3fd-42ed-899b-419c1b0fe10d");
 
     /// <inheritdoc />
     public override string Description => "Extracts chapter and metadata information from sidecar files (.cue, .opf, .json, .nfo, .ffmetadata, .txt) for audiobooks.";

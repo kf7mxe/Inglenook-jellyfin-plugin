@@ -2,7 +2,7 @@
   "category": "Metadata",
   "changelog": "",
   "description": "Extracts chapter and metadata information from sidecar files for audiobooks.",
-  "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "guid": "85a30ae6-b3fd-42ed-899b-419c1b0fe10d",
   "name": "Inglenook",
   "overview": "Audiobook chapter and metadata extraction from sidecar files",
   "owner": "Inglenook",
