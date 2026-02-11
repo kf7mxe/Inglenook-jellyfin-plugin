@@ -1,6 +1,8 @@
 # Jellyfin Audiobook Chapters Plugin
 
-A Jellyfin plugin that extracts chapter and metadata information from sidecar files for audiobooks. It supports multiple metadata formats and can also detect multi-file audiobooks where each chapter is a separate audio file.
+A Jellyfin plugin that extracts chapter and metadata information from sidecar files for audiobooks. It supports multiple metadata formats and provides a custom API endpoint for retrieving audiobook chapters, since Jellyfin's built-in chapter support is limited to video content only.
+
+Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an audiobook client app for Jellyfin.
 
 ## Features
 
@@ -12,7 +14,7 @@ A Jellyfin plugin that extracts chapter and metadata information from sidecar fi
   - **CUE** (.cue) - CUE sheet files with chapter timestamps (priority 50)
   - **Text** (.txt) - Simple text files for chapters, descriptions, etc. (priority 30)
 
-- **Multi-file audiobook detection** - Automatically creates chapter entries when each chapter is a separate audio file
+- **Custom chapters API endpoint** - Exposes `/Inglenook/{itemId}` since Jellyfin only supports chapters on video items, not audio/book items
 
 - **Metadata merging** - Combines metadata from multiple sources using configurable priority ordering
 
@@ -75,15 +77,16 @@ My Audiobook/
 
 3. Chapters and metadata will be extracted and applied automatically
 
-### Verifying Chapters
+### Custom API Endpoint
 
-You can verify chapters are loaded via the Jellyfin API:
+Since Jellyfin's built-in API only returns chapters for video items, this plugin provides its own endpoint:
 
 ```
-GET /Items/{itemId}?Fields=Chapters
+GET /Inglenook/{itemId}    - Get chapters for an audiobook
+GET /Inglenook/Libraries   - List available libraries
 ```
 
-Or check in the Jellyfin web UI by playing the audiobook - chapter markers should appear in the player.
+These endpoints require authentication. The [Inglenook](https://github.com/kf7mxe/inglenook) client app uses these endpoints to display chapter navigation for audiobooks.
 
 ## Configuration
 
@@ -99,16 +102,7 @@ Access plugin settings at **Dashboard > Plugins > Audiobook Chapters**.
 | Enable NFO Files | true | Parse .nfo metadata files |
 | Enable FFmetadata | true | Parse .ffmetadata files |
 | Enable Text Files | true | Parse .txt metadata files |
-| Enable Multi-File Detection | true | Detect multi-file audiobooks |
-| Chapter Naming Strategy | UseFilename | How to name multi-file chapters |
 | Metadata Priority | opf,json,nfo,cue,ffmetadata,txt | Source priority order |
-
-### Chapter Naming Strategies (Multi-File)
-
-- **UseFilename** - Uses the cleaned-up filename as the chapter title
-- **UseMetadataTitle** - Uses embedded metadata title if available
-- **UseSequentialNumbering** - Uses "Chapter 1", "Chapter 2", etc.
-- **ParseFilenamePattern** - Parses the filename to extract the title portion
 
 ## Supported File Formats
 
@@ -237,31 +231,10 @@ ISBN: 9781234567890
 
 **reader.txt / narrator.txt** - One narrator name per line
 
-### Multi-File Audiobooks
-
-The plugin detects directories with multiple numbered audio files:
-
-```
-My Audiobook/
-├── 01 - Introduction.mp3
-├── 02 - Chapter 1.mp3
-├── 03 - Chapter 2.mp3
-└── 04 - Epilogue.mp3
-```
-
-Supported naming patterns:
-- `01 - Title.mp3` or `01. Title.mp3`
-- `Chapter 01 - Title.mp3`
-- `Part 1 - Title.mp3`
-- `Track 01.mp3`
-- `Disc 1 - 01 - Title.mp3`
-
-Supported audio formats: `.mp3`, `.m4a`, `.m4b`, `.flac`, `.ogg`, `.opus`, `.wma`, `.aac`, `.wav`, `.aiff`
-
 ## Building
 
 Requirements:
-- .NET 8.0 SDK or later
+- .NET 9.0 SDK or later
 
 ```bash
 dotnet publish Jellyfin.Plugin.AudiobookChapters/Jellyfin.Plugin.AudiobookChapters.csproj \
