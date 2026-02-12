@@ -11,8 +11,8 @@
         "version": "1.0.0.0",
         "changelog": "Initial release",
         "targetAbi": "10.11.0.0",
-        "sourceUrl": "",
-        "checksum": "",
+        "sourceUrl": "https://github.com/kf7mxe/Inglenook-jellyfin-plugin/releases/download/v1.0.0.0/Inglenook-1.0.0.0.zip",
+        "checksum": "sha256:138253089c46d35b6939b95a9ad531a66b3d4d27a5e54f0a20b655c77d7ad850",
         "timestamp": "2026-02-10T00:00:00Z"
       }
     ]
