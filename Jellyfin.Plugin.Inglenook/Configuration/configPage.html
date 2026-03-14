@@ -74,6 +74,49 @@
                     </div>
 
                     <div class="verticalSection">
+                        <h3 class="sectionTitle">Web Client</h3>
+                        <div class="fieldDescription" style="margin-bottom: 1em;">
+                            The Inglenook web client is automatically downloaded from GitHub releases and served by the plugin.
+                            Access it at <a href="/Inglenook/App" target="_blank">/Inglenook/App</a>.
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableSpaServing" />
+                                <span>Enable web client</span>
+                            </label>
+                            <div class="fieldDescription">Enable or disable the Inglenook web client entirely.</div>
+                        </div>
+
+                        <div id="SpaServingControls">
+                        <div id="SpaStatus" class="fieldDescription" style="margin-bottom: 1em;">
+                            Checking status...
+                        </div>
+
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="SpaGitHubRepo">GitHub Repository</label>
+                            <input is="emby-input" type="text" id="SpaGitHubRepo"
+                                   placeholder="kf7mxe/inglenook" />
+                            <div class="fieldDescription">GitHub repository in owner/repo format to download the web client from.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableSpaAutoUpdate" />
+                                <span>Enable automatic updates</span>
+                            </label>
+                            <div class="fieldDescription">Automatically check for and download new releases daily.</div>
+                        </div>
+
+                        <div style="margin-bottom: 1em;">
+                            <button is="emby-button" type="button" id="btnCheckSpaUpdate" class="raised emby-button">
+                                <span>Check for Updates Now</span>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="verticalSection">
                         <h3 class="sectionTitle">Advanced</h3>
 
                         <div class="inputContainer">
@@ -98,6 +141,12 @@
             var InglenookConfig = {
                 pluginUniqueId: '85a30ae6-b3fd-42ed-899b-419c1b0fe10d'
             };
+
+            function toggleSpaControls(enabled) {
+                var container = document.getElementById('SpaServingControls');
+                container.style.opacity = enabled ? '1' : '0.5';
+                container.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
 
             function loadLibraries(page, enabledIds) {
                 var url = ApiClient.getUrl('Library/VirtualFolders');
@@ -132,6 +181,26 @@
                 });
             }
 
+            function loadSpaStatus(page) {
+                var url = ApiClient.getUrl('Inglenook/App/Status');
+                fetch(url, {
+                    headers: { 'X-Emby-Token': ApiClient.accessToken() }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (status) {
+                    var statusEl = page.querySelector('#SpaStatus');
+                    if (status.Available) {
+                        var lastCheck = status.LastUpdateCheck ? new Date(status.LastUpdateCheck).toLocaleString() : 'Never';
+                        statusEl.innerHTML = 'Status: <strong>Installed</strong> (version: ' + (status.Version || 'unknown') + ')<br/>Last update check: ' + lastCheck;
+                    } else {
+                        statusEl.innerHTML = 'Status: <strong>Not installed</strong> - the web client will be downloaded automatically.';
+                    }
+                }).catch(function (err) {
+                    console.error('[Inglenook] Error loading SPA status:', err);
+                    page.querySelector('#SpaStatus').innerHTML = 'Status: Unable to check';
+                });
+            }
+
             function loadConfig(page) {
                 console.log('[Inglenook] Loading config...');
                 Dashboard.showLoadingMsg();
@@ -144,7 +213,12 @@
                     page.querySelector('#EnableFfmetadata').checked = config.EnableFfmetadata;
                     page.querySelector('#EnableTextFiles').checked = config.EnableTextFiles;
                     page.querySelector('#MetadataPriority').value = config.MetadataPriority;
+                    page.querySelector('#SpaGitHubRepo').value = config.SpaGitHubRepo || 'kf7mxe/inglenook';
+                    page.querySelector('#EnableSpaAutoUpdate').checked = config.EnableSpaAutoUpdate;
+                    page.querySelector('#EnableSpaServing').checked = config.EnableSpaServing;
+                    toggleSpaControls(config.EnableSpaServing);
                     loadLibraries(page, config.EnabledLibraryIds || []);
+                    loadSpaStatus(page);
                     Dashboard.hideLoadingMsg();
                 });
             }
@@ -182,6 +256,9 @@
                             }
                         }
                         config.EnabledLibraryIds = selectedLibraries;
+                        config.SpaGitHubRepo = page.querySelector('#SpaGitHubRepo').value;
+                        config.EnableSpaAutoUpdate = page.querySelector('#EnableSpaAutoUpdate').checked;
+                        config.EnableSpaServing = page.querySelector('#EnableSpaServing').checked;
 
                         ApiClient.updatePluginConfiguration(InglenookConfig.pluginUniqueId, config).then(function () {
                             Dashboard.processPluginConfigurationUpdateResult();
@@ -190,6 +267,42 @@
                     e.preventDefault();
                     return false;
                 });
+
+            page.querySelector('#EnableSpaServing').addEventListener('change', function () {
+                toggleSpaControls(this.checked);
+            });
+
+            page.querySelector('#btnCheckSpaUpdate').addEventListener('click', function () {
+                var btn = this;
+                btn.disabled = true;
+                btn.querySelector('span').textContent = 'Checking...';
+                // Trigger the scheduled task by finding and running it
+                var url = ApiClient.getUrl('ScheduledTasks');
+                fetch(url, {
+                    headers: { 'X-Emby-Token': ApiClient.accessToken() }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (tasks) {
+                    var task = tasks.find(function (t) { return t.Key === 'InglenookSpaUpdate'; });
+                    if (task) {
+                        return fetch(ApiClient.getUrl('ScheduledTasks/Running/' + task.Id), {
+                            method: 'POST',
+                            headers: { 'X-Emby-Token': ApiClient.accessToken() }
+                        });
+                    }
+                }).then(function () {
+                    btn.querySelector('span').textContent = 'Update triggered!';
+                    setTimeout(function () {
+                        btn.disabled = false;
+                        btn.querySelector('span').textContent = 'Check for Updates Now';
+                        loadSpaStatus(page);
+                    }, 5000);
+                }).catch(function (err) {
+                    console.error('[Inglenook] Error triggering update:', err);
+                    btn.disabled = false;
+                    btn.querySelector('span').textContent = 'Check for Updates Now';
+                });
+            });
         </script>
     </div>
 </body>

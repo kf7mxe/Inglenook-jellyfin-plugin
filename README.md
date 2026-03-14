@@ -20,6 +20,8 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
 
 - **Supports both Audio and Book library types**
 
+- **Built-in web client hosting** - Automatically downloads and serves the [Inglenook](https://github.com/kf7mxe/inglenook) web client from GitHub releases at `/Inglenook/App`, with automatic update checks. Can be toggled on/off in plugin settings.
+
 ## Supported Metadata
 
 | Field | OPF | JSON | NFO | FFmeta | CUE | TXT |
@@ -88,6 +90,22 @@ GET /Inglenook/Libraries   - List available libraries
 
 These endpoints require authentication. The [Inglenook](https://github.com/kf7mxe/inglenook) client app uses these endpoints to display chapter navigation for audiobooks.
 
+### Inglenook Web Client
+
+The plugin can automatically download and serve the Inglenook web client directly from your Jellyfin server. Once installed, access it at:
+
+```
+http://<your-jellyfin-server>/Inglenook/App
+```
+
+The web client is downloaded from GitHub releases on first run and checked for updates daily. You can configure the GitHub repository, enable/disable automatic updates, or disable the web client entirely from the plugin settings page.
+
+Additional status endpoint:
+
+```
+GET /Inglenook/App/Status   - Get web client install status, version, and settings
+```
+
 ## Configuration
 
 Access plugin settings at **Dashboard > Plugins > Audiobook Chapters**.
@@ -103,6 +121,9 @@ Access plugin settings at **Dashboard > Plugins > Audiobook Chapters**.
 | Enable FFmetadata | true | Parse .ffmetadata files |
 | Enable Text Files | true | Parse .txt metadata files |
 | Metadata Priority | opf,json,nfo,cue,ffmetadata,txt | Source priority order |
+| Enable Web Client | true | Serve the Inglenook web client at /Inglenook/App |
+| GitHub Repository | kf7mxe/inglenook | Source repo for web client releases (owner/repo) |
+| Enable Automatic Updates | true | Check for and download new web client releases daily |
 
 ## Supported File Formats
 

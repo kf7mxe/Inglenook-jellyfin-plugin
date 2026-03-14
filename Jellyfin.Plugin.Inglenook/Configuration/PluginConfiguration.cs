@@ -30,4 +30,19 @@ public class PluginConfiguration : BasePluginConfiguration
 
     /// <summary>Gets or sets the list of library IDs the plugin should scan. Empty means all libraries.</summary>
     public string[] EnabledLibraryIds { get; set; } = Array.Empty<string>();
+
+    /// <summary>Gets or sets a value indicating whether SPA web client serving is enabled.</summary>
+    public bool EnableSpaServing { get; set; } = true;
+
+    /// <summary>Gets or sets the GitHub repository for the SPA web client (owner/repo format).</summary>
+    public string SpaGitHubRepo { get; set; } = "kf7mxe/inglenook";
+
+    /// <summary>Gets or sets a value indicating whether automatic SPA updates are enabled.</summary>
+    public bool EnableSpaAutoUpdate { get; set; } = true;
+
+    /// <summary>Gets or sets the currently installed SPA version tag.</summary>
+    public string CurrentSpaVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the last time an update check was performed (ISO 8601).</summary>
+    public string LastSpaUpdateCheck { get; set; } = string.Empty;
 }
