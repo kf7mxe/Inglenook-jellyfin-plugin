@@ -128,7 +128,7 @@ public class SpaManager
         try
         {
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Jellyfin-Inglenook-Plugin/1.0");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Jellyfin-Inglenook-Plugin/1.1");
 
             var url = $"https://api.github.com/repos/{repo}/releases/latest";
             _logger.LogInformation("Checking for SPA updates at {Url}", url);
@@ -197,7 +197,7 @@ public class SpaManager
             _logger.LogInformation("Downloading SPA from {Url}", downloadUrl);
 
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Jellyfin-Inglenook-Plugin/1.0");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Jellyfin-Inglenook-Plugin/1.1");
 
             using var response = await client.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                 .ConfigureAwait(false);

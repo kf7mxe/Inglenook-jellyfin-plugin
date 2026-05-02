@@ -74,6 +74,66 @@
                     </div>
 
                     <div class="verticalSection">
+                        <h3 class="sectionTitle">Remote Metadata Providers</h3>
+                        <div class="fieldDescription" style="margin-bottom: 1em;">Configure online metadata providers for the Identify feature. These allow searching for audiobook and book metadata from online databases.</div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableAudnexus" />
+                                <span>Audnexus (Audible metadata)</span>
+                            </label>
+                            <div class="fieldDescription">Fetch audiobook metadata from Audnexus, including narrator, duration, series info, and cover art.</div>
+                        </div>
+
+                        <div class="inputContainer" id="AudnexusOptions">
+                            <label class="inputLabel inputLabelUnfocused" for="AudnexusRegion">Audnexus Region</label>
+                            <select is="emby-select" id="AudnexusRegion">
+                                <option value="us">United States (us)</option>
+                                <option value="uk">United Kingdom (uk)</option>
+                                <option value="de">Germany (de)</option>
+                                <option value="fr">France (fr)</option>
+                                <option value="it">Italy (it)</option>
+                                <option value="es">Spain (es)</option>
+                                <option value="ca">Canada (ca)</option>
+                                <option value="au">Australia (au)</option>
+                                <option value="in">India (in)</option>
+                                <option value="jp">Japan (jp)</option>
+                            </select>
+                            <div class="fieldDescription">Audible marketplace region for metadata lookups.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableGoogleBooks" />
+                                <span>Google Books</span>
+                            </label>
+                            <div class="fieldDescription">Fetch book metadata from Google Books, including title, authors, description, and cover art.</div>
+                        </div>
+
+                        <div class="inputContainer" id="GoogleBooksOptions">
+                            <label class="inputLabel inputLabelUnfocused" for="GoogleBooksApiKey">Google Books API Key (optional)</label>
+                            <input is="emby-input" type="text" id="GoogleBooksApiKey"
+                                   placeholder="Leave empty for default rate limits" />
+                            <div class="fieldDescription">Optional API key for higher rate limits. Works without one but may be rate-limited.</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input type="checkbox" is="emby-checkbox" id="EnableOpenLibrary" />
+                                <span>Open Library</span>
+                            </label>
+                            <div class="fieldDescription">Fetch book metadata from Open Library. Free, no API key required, and no aggressive rate limits.</div>
+                        </div>
+
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="RemoteProviderPriority">Provider Priority Order</label>
+                            <input is="emby-input" type="text" id="RemoteProviderPriority"
+                                   placeholder="openlibrary,googlebooks,audnexus" />
+                            <div class="fieldDescription">Comma-separated priority order for remote providers (first = highest priority). Available: openlibrary, googlebooks, audnexus</div>
+                        </div>
+                    </div>
+
+                    <div class="verticalSection">
                         <h3 class="sectionTitle">Web Client</h3>
                         <div class="fieldDescription" style="margin-bottom: 1em;">
                             The Inglenook web client is automatically downloaded from GitHub releases and served by the plugin.
@@ -141,6 +201,18 @@
             var InglenookConfig = {
                 pluginUniqueId: '85a30ae6-b3fd-42ed-899b-419c1b0fe10d'
             };
+
+            function toggleRemoteProviderOptions(page) {
+                var audnexusEnabled = page.querySelector('#EnableAudnexus').checked;
+                var audnexusOpts = page.querySelector('#AudnexusOptions');
+                audnexusOpts.style.opacity = audnexusEnabled ? '1' : '0.5';
+                audnexusOpts.style.pointerEvents = audnexusEnabled ? 'auto' : 'none';
+
+                var googleEnabled = page.querySelector('#EnableGoogleBooks').checked;
+                var googleOpts = page.querySelector('#GoogleBooksOptions');
+                googleOpts.style.opacity = googleEnabled ? '1' : '0.5';
+                googleOpts.style.pointerEvents = googleEnabled ? 'auto' : 'none';
+            }
 
             function toggleSpaControls(enabled) {
                 var container = document.getElementById('SpaServingControls');
@@ -213,6 +285,13 @@
                     page.querySelector('#EnableFfmetadata').checked = config.EnableFfmetadata;
                     page.querySelector('#EnableTextFiles').checked = config.EnableTextFiles;
                     page.querySelector('#MetadataPriority').value = config.MetadataPriority;
+                    page.querySelector('#EnableAudnexus').checked = config.EnableAudnexus;
+                    page.querySelector('#AudnexusRegion').value = config.AudnexusRegion || 'us';
+                    page.querySelector('#EnableGoogleBooks').checked = config.EnableGoogleBooks;
+                    page.querySelector('#GoogleBooksApiKey').value = config.GoogleBooksApiKey || '';
+                    page.querySelector('#EnableOpenLibrary').checked = config.EnableOpenLibrary;
+                    page.querySelector('#RemoteProviderPriority').value = config.RemoteProviderPriority || 'openlibrary,googlebooks,audnexus';
+                    toggleRemoteProviderOptions(page);
                     page.querySelector('#SpaGitHubRepo').value = config.SpaGitHubRepo || 'kf7mxe/inglenook';
                     page.querySelector('#EnableSpaAutoUpdate').checked = config.EnableSpaAutoUpdate;
                     page.querySelector('#EnableSpaServing').checked = config.EnableSpaServing;
@@ -256,6 +335,12 @@
                             }
                         }
                         config.EnabledLibraryIds = selectedLibraries;
+                        config.EnableAudnexus = page.querySelector('#EnableAudnexus').checked;
+                        config.AudnexusRegion = page.querySelector('#AudnexusRegion').value;
+                        config.EnableGoogleBooks = page.querySelector('#EnableGoogleBooks').checked;
+                        config.GoogleBooksApiKey = page.querySelector('#GoogleBooksApiKey').value;
+                        config.EnableOpenLibrary = page.querySelector('#EnableOpenLibrary').checked;
+                        config.RemoteProviderPriority = page.querySelector('#RemoteProviderPriority').value;
                         config.SpaGitHubRepo = page.querySelector('#SpaGitHubRepo').value;
                         config.EnableSpaAutoUpdate = page.querySelector('#EnableSpaAutoUpdate').checked;
                         config.EnableSpaServing = page.querySelector('#EnableSpaServing').checked;
@@ -267,6 +352,14 @@
                     e.preventDefault();
                     return false;
                 });
+
+            page.querySelector('#EnableAudnexus').addEventListener('change', function () {
+                toggleRemoteProviderOptions(page);
+            });
+
+            page.querySelector('#EnableGoogleBooks').addEventListener('change', function () {
+                toggleRemoteProviderOptions(page);
+            });
 
             page.querySelector('#EnableSpaServing').addEventListener('change', function () {
                 toggleSpaControls(this.checked);

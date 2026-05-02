@@ -45,4 +45,24 @@ public class PluginConfiguration : BasePluginConfiguration
 
     /// <summary>Gets or sets the last time an update check was performed (ISO 8601).</summary>
     public string LastSpaUpdateCheck { get; set; } = string.Empty;
+
+    // Remote Metadata Providers
+
+    /// <summary>Gets or sets a value indicating whether the Audnexus remote metadata provider is enabled.</summary>
+    public bool EnableAudnexus { get; set; } = true;
+
+    /// <summary>Gets or sets the Audible region for Audnexus lookups (e.g., us, uk, de, fr, it, es, ca, au, in, jp).</summary>
+    public string AudnexusRegion { get; set; } = "us";
+
+    /// <summary>Gets or sets a value indicating whether the Google Books remote metadata provider is enabled.</summary>
+    public bool EnableGoogleBooks { get; set; } = true;
+
+    /// <summary>Gets or sets the optional Google Books API key. Works without one but rate limits apply.</summary>
+    public string GoogleBooksApiKey { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether the Open Library remote metadata provider is enabled.</summary>
+    public bool EnableOpenLibrary { get; set; } = true;
+
+    /// <summary>Gets or sets the comma-separated priority order for remote metadata providers.</summary>
+    public string RemoteProviderPriority { get; set; } = "openlibrary,googlebooks,audnexus";
 }

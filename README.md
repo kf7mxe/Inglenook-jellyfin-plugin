@@ -43,7 +43,7 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
 
 ### From Release
 
-1. Download the latest `Jellyfin.Plugin.AudiobookChapters.dll` from the releases page
+1. Download the latest `Jellyfin.Plugin.Inglenook.dll` from the releases page
 2. Create a folder called `AudiobookChapters` in your Jellyfin plugins directory:
    - **Linux**: `~/.local/share/jellyfin/plugins/AudiobookChapters/`
    - **Docker**: `/config/plugins/AudiobookChapters/`
@@ -56,12 +56,28 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
 ```bash
 git clone <repo-url>
 cd "Jellyfin Audiobook Chapters Plugin"
-dotnet publish Jellyfin.Plugin.AudiobookChapters/Jellyfin.Plugin.AudiobookChapters.csproj \
+dotnet publish Jellyfin.Plugin.Inglenook/Jellyfin.Plugin.Inglenook.csproj \
     --configuration Release \
     --output bin/publish
 ```
 
-Copy `bin/publish/Jellyfin.Plugin.AudiobookChapters.dll` to your Jellyfin plugins directory as described above.
+Copy `bin/publish/Jellyfin.Plugin.Inglenook.dll` to your Jellyfin plugins directory as described above.
+
+### Deploy (Linux with systemd)
+
+```bash
+# Build
+dotnet publish Jellyfin.Plugin.Inglenook/Jellyfin.Plugin.Inglenook.csproj \
+    --configuration Release \
+    --output bin/publish
+
+# Copy to Jellyfin plugins directory
+sudo mkdir -p /var/lib/jellyfin/plugins/Inglenook
+sudo cp bin/publish/Jellyfin.Plugin.Inglenook.dll /var/lib/jellyfin/plugins/Inglenook/
+
+# Restart Jellyfin to load the plugin
+sudo systemctl restart jellyfin
+```
 
 ## Usage
 
@@ -258,7 +274,7 @@ Requirements:
 - .NET 9.0 SDK or later
 
 ```bash
-dotnet publish Jellyfin.Plugin.AudiobookChapters/Jellyfin.Plugin.AudiobookChapters.csproj \
+dotnet publish Jellyfin.Plugin.Inglenook/Jellyfin.Plugin.Inglenook.csproj \
     --configuration Release \
     --output bin/publish
 ```

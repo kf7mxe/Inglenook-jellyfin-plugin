@@ -1,6 +1,6 @@
 name: "Inglenook"
 guid: "85a30ae6-b3fd-42ed-899b-419c1b0fe10d"
-version: "1.0.0.0"
+version: "1.1.0.0"
 targetAbi: "10.11.0.0"
 framework: "net9.0"
 owner: "Inglenook"
@@ -12,6 +12,8 @@ description: >
 artifacts:
   - "Jellyfin.Plugin.Inglenook.dll"
 changelog: |
+  ## v1.1.0.0
+  - Added remote metadata providers (Audnexus, Google Books) enabling the Identify feature for audiobooks and books.
   ## v1.0.0.0
   - Initial release
   - Support for .cue, .opf, .json, .nfo, .ffmetadata, and .txt metadata files
