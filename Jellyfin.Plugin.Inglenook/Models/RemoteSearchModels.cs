@@ -81,3 +81,19 @@ public class ApplyMetadataRequest
     /// </summary>
     public bool ReplaceExisting { get; set; }
 }
+
+/// <summary>
+/// Request to update an item's series information.
+/// </summary>
+public class UpdateSeriesRequest
+{
+    /// <summary>
+    /// Gets or sets the series name.
+    /// </summary>
+    public string? SeriesName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the position within the series.
+    /// </summary>
+    public float? SeriesIndex { get; set; }
+}

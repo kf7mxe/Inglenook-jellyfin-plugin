@@ -491,6 +491,62 @@ public class InglenookController : ControllerBase
     }
 
     /// <summary>
+    /// Updates the series information for a specific item.
+    /// </summary>
+    [HttpPost("{itemId}/Series")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UpdateSeries(
+        [FromRoute] Guid itemId,
+        [FromBody] UpdateSeriesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var item = _libraryManager.GetItemById(itemId);
+        if (item is null)
+        {
+            return NotFound();
+        }
+
+        if (item is Book book)
+        {
+            book.SeriesName = request.SeriesName;
+        }
+        else if (item is AudioBook audioBook)
+        {
+            audioBook.SeriesName = request.SeriesName;
+        }
+
+        item.IndexNumber = (int?)request.SeriesIndex;
+
+        // Add to ProviderIds as a fallback since SeriesName isn't always mapped in Jellyfin DTOs for all types
+        if (!string.IsNullOrEmpty(request.SeriesName))
+        {
+            item.SetProviderId("SeriesName", request.SeriesName);
+        }
+        else
+        {
+            item.ProviderIds.Remove("SeriesName");
+        }
+
+        if (request.SeriesIndex.HasValue)
+        {
+            item.SetProviderId("SeriesIndex", request.SeriesIndex.Value.ToString());
+        }
+        else
+        {
+            item.ProviderIds.Remove("SeriesIndex");
+        }
+
+        var parent = item.GetParent();
+        await _libraryManager.UpdateItemAsync(item, parent, ItemUpdateType.MetadataEdit, cancellationToken).ConfigureAwait(false);
+
+        _logger.LogInformation("Updated series for item {ItemName} to {SeriesName} (Index: {SeriesIndex})", 
+            item.Name, request.SeriesName, request.SeriesIndex);
+
+        return Ok(new { Success = true });
+    }
+
+    /// <summary>
     /// Gets metadata for a specific item, including provider IDs and people.
     /// </summary>
     [HttpGet("{itemId}/Metadata")]
@@ -504,6 +560,16 @@ public class InglenookController : ControllerBase
             return NotFound();
         }
 
+        string? seriesName = null;
+        if (item is Book book)
+        {
+            seriesName = book.SeriesName;
+        }
+        else if (item is AudioBook audioBook)
+        {
+            seriesName = audioBook.SeriesName;
+        }
+
         return Ok(new
         {
             item.Name,
@@ -512,6 +578,8 @@ public class InglenookController : ControllerBase
             item.CommunityRating,
             item.Genres,
             item.Tags,
+            SeriesName = seriesName,
+            SeriesIndex = item.IndexNumber,
             ProviderIds = item.ProviderIds,
             People = _libraryManager.GetPeople(item).Select(p => new
             {
@@ -586,9 +654,45 @@ public class InglenookController : ControllerBase
         }
 
         var year = book.Copyright ?? RemoteProviderHelper.ParseYear(book.ReleaseDate);
-        if ((replace || !item.ProductionYear.HasValue) && year.HasValue)
+        if (replace || !item.ProductionYear.HasValue)
         {
-            item.ProductionYear = year;
+            if (year.HasValue)
+            {
+                item.ProductionYear = year;
+            }
+        }
+
+        // Series
+        if (book.SeriesPrimary != null)
+        {
+            if (item is Book b)
+            {
+                if (replace || string.IsNullOrEmpty(b.SeriesName))
+                {
+                    b.SeriesName = book.SeriesPrimary.Name;
+                }
+            }
+            else if (item is AudioBook ab)
+            {
+                if (replace || string.IsNullOrEmpty(ab.SeriesName))
+                {
+                    ab.SeriesName = book.SeriesPrimary.Name;
+                }
+            }
+
+            if (replace || !item.IndexNumber.HasValue)
+            {
+                if (float.TryParse(book.SeriesPrimary.Position, out var pos))
+                {
+                    item.IndexNumber = (int)pos;
+                    item.SetProviderId("SeriesIndex", ((int)pos).ToString());
+                }
+            }
+
+            if (!string.IsNullOrEmpty(book.SeriesPrimary.Name))
+            {
+                item.SetProviderId("SeriesName", book.SeriesPrimary.Name);
+            }
         }
 
         if (float.TryParse(book.Rating, out var rating))

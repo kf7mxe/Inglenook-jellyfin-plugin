@@ -106,6 +106,22 @@ public class AudnexusAudioBookProvider : IRemoteMetadataProvider<AudioBook, Song
             result.Item.SetProviderId("isbn", book.Isbn);
         }
 
+        // Series
+        if (book.SeriesPrimary != null)
+        {
+            result.Item.SeriesName = book.SeriesPrimary.Name;
+            if (float.TryParse(book.SeriesPrimary.Position, out var pos))
+            {
+                result.Item.IndexNumber = (int)pos;
+                result.Item.SetProviderId("SeriesIndex", ((int)pos).ToString());
+            }
+
+            if (!string.IsNullOrEmpty(book.SeriesPrimary.Name))
+            {
+                result.Item.SetProviderId("SeriesName", book.SeriesPrimary.Name);
+            }
+        }
+
         // Genres
         var genres = book.Genres
             .Where(g => string.Equals(g.Type, "genre", StringComparison.OrdinalIgnoreCase))

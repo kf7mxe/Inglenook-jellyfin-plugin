@@ -105,6 +105,16 @@ public class AudnexusBookProvider : IRemoteMetadataProvider<Book, BookInfo>, IHa
             result.Item.SetProviderId("isbn", book.Isbn);
         }
 
+        // Series
+        if (book.SeriesPrimary != null)
+        {
+            result.Item.SeriesName = book.SeriesPrimary.Name;
+            if (float.TryParse(book.SeriesPrimary.Position, out var pos))
+            {
+                result.Item.IndexNumber = (int)pos;
+            }
+        }
+
         var genres = book.Genres
             .Where(g => string.Equals(g.Type, "genre", StringComparison.OrdinalIgnoreCase))
             .Select(g => g.Name)

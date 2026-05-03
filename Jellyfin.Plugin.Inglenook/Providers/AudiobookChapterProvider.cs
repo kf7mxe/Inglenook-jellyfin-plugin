@@ -149,6 +149,41 @@ public class AudiobookChapterProvider : ICustomMetadataProvider<MediaBrowser.Con
             updateType |= ItemUpdateType.MetadataEdit;
         }
 
+        // Series
+        if (!string.IsNullOrEmpty(metadata.SeriesName))
+        {
+            var seriesUpdated = false;
+            if (item is Book book && string.IsNullOrEmpty(book.SeriesName))
+            {
+                book.SeriesName = metadata.SeriesName;
+                seriesUpdated = true;
+            }
+            else if (item is AudioBook audioBook && string.IsNullOrEmpty(audioBook.SeriesName))
+            {
+                audioBook.SeriesName = metadata.SeriesName;
+                seriesUpdated = true;
+            }
+
+            if (seriesUpdated)
+            {
+                item.IndexNumber = (int?)metadata.SeriesIndex;
+                updateType |= ItemUpdateType.MetadataEdit;
+            }
+
+            // Always set ProviderIds as fallback for AudioBooks
+            if (!item.ProviderIds.ContainsKey("SeriesName"))
+            {
+                item.SetProviderId("SeriesName", metadata.SeriesName);
+                updateType |= ItemUpdateType.MetadataImport;
+            }
+
+            if (metadata.SeriesIndex.HasValue && !item.ProviderIds.ContainsKey("SeriesIndex"))
+            {
+                item.SetProviderId("SeriesIndex", metadata.SeriesIndex.Value.ToString());
+                updateType |= ItemUpdateType.MetadataImport;
+            }
+        }
+
         return updateType;
     }
 
@@ -306,8 +341,28 @@ public class BookChapterProvider : ICustomMetadataProvider<Book>, IHasItemChange
             updateType |= ItemUpdateType.MetadataEdit;
         }
 
+        // Series
+        if (!string.IsNullOrEmpty(result.SeriesName) && string.IsNullOrEmpty(item.SeriesName))
+        {
+            item.SeriesName = result.SeriesName;
+            item.IndexNumber = (int?)result.SeriesIndex;
+            updateType |= ItemUpdateType.MetadataEdit;
+        }
+
         // Provider IDs
         var providerUpdated = false;
+        if (!string.IsNullOrEmpty(result.SeriesName) && !item.ProviderIds.ContainsKey("SeriesName"))
+        {
+            item.SetProviderId("SeriesName", result.SeriesName);
+            providerUpdated = true;
+        }
+
+        if (result.SeriesIndex.HasValue && !item.ProviderIds.ContainsKey("SeriesIndex"))
+        {
+            item.SetProviderId("SeriesIndex", result.SeriesIndex.Value.ToString());
+            providerUpdated = true;
+        }
+
         if (!string.IsNullOrEmpty(result.Isbn) && !item.ProviderIds.ContainsKey("isbn"))
         {
             item.SetProviderId("isbn", result.Isbn);
@@ -421,7 +476,27 @@ public class AudioBookChapterProvider : ICustomMetadataProvider<AudioBook>, IHas
             updateType |= ItemUpdateType.MetadataEdit;
         }
 
+        // Series
+        if (!string.IsNullOrEmpty(result.SeriesName) && string.IsNullOrEmpty(item.SeriesName))
+        {
+            item.SeriesName = result.SeriesName;
+            item.IndexNumber = (int?)result.SeriesIndex;
+            updateType |= ItemUpdateType.MetadataEdit;
+        }
+
         var providerUpdated = false;
+        if (!string.IsNullOrEmpty(result.SeriesName) && !item.ProviderIds.ContainsKey("SeriesName"))
+        {
+            item.SetProviderId("SeriesName", result.SeriesName);
+            providerUpdated = true;
+        }
+
+        if (result.SeriesIndex.HasValue && !item.ProviderIds.ContainsKey("SeriesIndex"))
+        {
+            item.SetProviderId("SeriesIndex", result.SeriesIndex.Value.ToString());
+            providerUpdated = true;
+        }
+
         if (!string.IsNullOrEmpty(result.Isbn) && !item.ProviderIds.ContainsKey("isbn"))
         {
             item.SetProviderId("isbn", result.Isbn);
