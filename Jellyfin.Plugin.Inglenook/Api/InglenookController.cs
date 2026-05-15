@@ -27,7 +27,7 @@ namespace Jellyfin.Plugin.Inglenook.Api;
 /// so this endpoint provides chapter data for Audio/AudioBook/Book items.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(AuthenticationSchemes = "CustomAuthentication")]
 [Route("Inglenook")]
 public class InglenookController : ControllerBase
 {
@@ -68,18 +68,34 @@ public class InglenookController : ControllerBase
 
     private Guid GetUserId()
     {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            _logger.LogWarning("GetUserId called but User.Identity.IsAuthenticated is false.");
+        }
+
         var claim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                 ?? User.FindFirstValue("userId")
+                 ?? User.FindFirstValue("UserId")
                  ?? User.FindFirstValue("id")
+                 ?? User.FindFirstValue("Jellyfin-UserId")
                  ?? User.FindFirstValue(ClaimTypes.Name);
 
         if (string.IsNullOrEmpty(claim))
         {
-            _logger.LogWarning("User ID claim not found. Claims present: {Claims}",
+            _logger.LogWarning("User ID claim not found. Identity name: {Name}, Authenticated: {IsAuthenticated}, Claims present: {Claims}",
+                User.Identity?.Name,
+                User.Identity?.IsAuthenticated,
                 string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}")));
             return Guid.Empty;
         }
 
-        return Guid.TryParse(claim, out var guid) ? guid : Guid.Empty;
+        if (Guid.TryParse(claim, out var guid))
+        {
+            return guid;
+        }
+
+        _logger.LogWarning("Found User ID claim '{ClaimValue}' but it is not a valid GUID.", claim);
+        return Guid.Empty;
     }
 
     /// <summary>
