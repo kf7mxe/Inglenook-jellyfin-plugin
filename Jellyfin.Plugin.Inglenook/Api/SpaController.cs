@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Jellyfin.Plugin.Inglenook.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -101,6 +102,12 @@ public class SpaController : ControllerBase
                 "text/html");
         }
 
+        // Enforce trailing slash for the base app path to ensure relative paths resolve correctly
+        if (string.IsNullOrEmpty(path) && !Request.Path.Value!.EndsWith('/'))
+        {
+            return Redirect(Request.Path.Value + "/");
+        }
+
         var filePath = _spaManager.GetFilePath(path);
         if (filePath is null)
         {
@@ -110,6 +117,13 @@ public class SpaController : ControllerBase
         if (System.IO.File.Exists(filePath))
         {
             var extension = Path.GetExtension(filePath);
+
+            // Special handling for index.html to inject base tag and rewrite asset paths
+            if (string.Equals(extension, ".html", StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessAndServeHtml(filePath);
+            }
+
             var mimeType = SpaManager.GetMimeType(extension);
             return PhysicalFile(filePath, mimeType);
         }
@@ -120,10 +134,53 @@ public class SpaController : ControllerBase
             var indexPath = Path.Combine(_spaManager.SpaWebRoot, "index.html");
             if (System.IO.File.Exists(indexPath))
             {
-                return PhysicalFile(indexPath, "text/html");
+                return ProcessAndServeHtml(indexPath);
             }
         }
 
         return NotFound();
+    }
+
+    private ActionResult ProcessAndServeHtml(string filePath)
+    {
+        try
+        {
+            var html = System.IO.File.ReadAllText(filePath);
+
+            // 1. Rewrite ALL absolute paths (starting with / but not //) to relative ones
+            // This handles /assets/, /transitions.css, and any other root-relative paths.
+            // By making them relative, they will correctly use the <base> tag injected below.
+            html = Regex.Replace(html, "(src|href)=\"/([^/][^\"]*)\"", "$1=\"$2\"", RegexOptions.IgnoreCase);
+            html = Regex.Replace(html, "(src|href)='/([^/][^']*)'", "$1='$2'", RegexOptions.IgnoreCase);
+
+            // 2. Handle <base> tag - MUST start with a / to be absolute from server root
+            var baseUrl = "/" + Request.PathBase.Value?.Trim('/') + "/Inglenook/App/";
+            baseUrl = baseUrl.Replace("//", "/"); // Clean up double slashes
+            
+            if (Regex.IsMatch(html, "<base[^>]*>", RegexOptions.IgnoreCase))
+            {
+                // Replace existing base tag
+                html = Regex.Replace(
+                    html,
+                    "<base[^>]*>",
+                    $"<base href=\"{baseUrl}\">",
+                    RegexOptions.IgnoreCase);
+            }
+            else
+            {
+                // Inject base tag into head
+                html = Regex.Replace(
+                    html,
+                    "(<head[^>]*>)",
+                    $"$1\n    <base href=\"{baseUrl}\">",
+                    RegexOptions.IgnoreCase);
+            }
+
+            return Content(html, "text/html");
+        }
+        catch (Exception)
+        {
+            return PhysicalFile(filePath, "text/html");
+        }
     }
 }
