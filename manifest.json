@@ -9,11 +9,11 @@
     "versions": [
       {
         "version": "1.1.0.0",
-        "changelog": "Added remote metadata providers (Audnexus, Google Books) enabling the Identify feature for audiobooks and books.",
+        "changelog": "Added remote metadata providers (Audnexus, Google Books, Open Library), identified UI improvements, and fixed chapter parsing for CUE and FFmetadata.",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/kf7mxe/Inglenook-jellyfin-plugin/releases/download/v1.1.0.0/Inglenook-1.1.0.0.zip",
-        "checksum": "",
-        "timestamp": "2026-03-28T00:00:00Z"
+        "checksum": "70140f83cc1e72ad0863982e4106d37c",
+        "timestamp": "2026-05-16T03:53:55Z"
       },
       {
         "version": "1.0.0.0",
