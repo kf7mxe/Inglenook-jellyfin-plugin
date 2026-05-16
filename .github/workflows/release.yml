@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build and Publish
+        run: dotnet publish Jellyfin.Plugin.Inglenook/Jellyfin.Plugin.Inglenook.csproj -c Release -o ./publish /p:Version=${{ steps.get_version.outputs.VERSION }}
+
+      - name: Create Release Package
+        run: |
+          # Copy meta.json which is required for the catalog
+          cp Jellyfin.Plugin.Inglenook/meta.json publish/
+          cd publish
+          zip -j ../Inglenook-${{ steps.get_version.outputs.VERSION }}.zip Jellyfin.Plugin.Inglenook.dll meta.json
+          cd ..
+          MD5_CHECKSUM=$(md5sum Inglenook-${{ steps.get_version.outputs.VERSION }}.zip | cut -d ' ' -f 1)
+          echo "MD5_CHECKSUM=$MD5_CHECKSUM" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          echo $MD5_CHECKSUM > checksum.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Inglenook-${{ steps.get_version.outputs.VERSION }}.zip
+            checksum.txt
+          body: |
+            ## Release v${{ steps.get_version.outputs.VERSION }}
+            
+            ### Assets
+            - **Plugin Zip:** `Inglenook-${{ steps.get_version.outputs.VERSION }}.zip`
+            - **MD5 Checksum:** `${{ env.MD5_CHECKSUM }}`
+            
+            ### How to update manifest.json
+            Copy the following into your `manifest.json`:
+            ```json
+            {
+              "version": "${{ steps.get_version.outputs.VERSION }}",
+              "changelog": "... (update this) ...",
+              "targetAbi": "10.11.0.0",
+              "sourceUrl": "https://github.com/${{ github.repository }}/releases/download/v${{ steps.get_version.outputs.VERSION }}/Inglenook-${{ steps.get_version.outputs.VERSION }}.zip",
+              "checksum": "${{ env.MD5_CHECKSUM }}",
+              "timestamp": "${{ env.TIMESTAMP }}"
+            }
+            ```
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
