@@ -41,7 +41,25 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
 
 ## Installation
 
-### From Release
+### Via Repository URL (Recommended)
+
+This is the easiest way to install and keep the plugin updated.
+
+1.  Go to **Dashboard > Plugins** in your Jellyfin server.
+2.  Select the **Repositories** tab and click **Add**.
+3.  Enter the following:
+    - **Repository Name**: `Inglenook`
+    - **Repository URL**: `https://raw.githubusercontent.com/kf7mxe/Inglenook-jellyfin-plugin/master/manifest.json`
+4.  Click **Save**.
+5.  Switch to the **Catalog** tab. You should now see **Inglenook** listed under the **Metadata** category.
+6.  Click on it, select the latest version, and click **Install**.
+7.  **Restart Jellyfin**.
+8.  Go to **Dashboard > Plugins > Installed** and click on **Inglenook**.
+9.  Under **Library Selection**, check the libraries you want the plugin to manage and click **Save**.
+
+*Note: If the plugin doesn't appear in the catalog immediately after adding the repository, perform a hard refresh of your browser (Ctrl+F5).*
+
+### From Release (Manual)
 
 1. Download the latest `Jellyfin.Plugin.Inglenook.dll` from the releases page
 2. Create a folder called `AudiobookChapters` in your Jellyfin plugins directory:
@@ -50,10 +68,13 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
    - **Windows**: `%APPDATA%\jellyfin\plugins\AudiobookChapters\`
 3. Place the DLL in that folder
 4. Restart Jellyfin
+5. Go to **Dashboard > Plugins > Installed** and click on **Inglenook**.
+6. Under **Library Selection**, check the libraries you want the plugin to manage and click **Save**.
 
-### From Source
+## Usage
 
-```bash
+1. **Configure Libraries**: Go to **Dashboard > Plugins > Inglenook** and select which libraries the plugin should scan.
+2. **Sidecar Files**: Place sidecar metadata files alongside your audiobook files. For example:
 git clone <repo-url>
 cd "Jellyfin Audiobook Chapters Plugin"
 dotnet publish Jellyfin.Plugin.Inglenook/Jellyfin.Plugin.Inglenook.csproj \
