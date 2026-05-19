@@ -254,6 +254,12 @@ public class InglenookController : ControllerBase
                 {
                     query = item.Name;
                 }
+                if (!string.Equals(query, item.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    existingAsin = null;
+                    existingIsbn = null;
+                    existingGoogleBooksId = null;
+                }
             }
         }
 
@@ -368,41 +374,41 @@ public class InglenookController : ControllerBase
 
         if (useOpenLibrary)
         {
-            tasks.Add(Task.Run(async () =>
+           tasks.Add(Task.Run(async () =>{
+        try 
             {
-                var openLibraryResults = new List<RemoteSearchResult>();
+            var openLibraryResults = new List<RemoteSearchResult>();
+            OpenLibrarySearchResponse? searchResponse = null;
 
-                // Search by ISBN first if available, then by query
-                var searchQuery = !string.IsNullOrEmpty(existingIsbn) ? null : query;
-                OpenLibrarySearchResponse? searchResponse = null;
+            if (!string.IsNullOrEmpty(existingIsbn))
+            {
+                searchResponse = await _openLibraryClient.SearchByIsbnAsync(existingIsbn!, cancellationToken).ConfigureAwait(false);
+            }
 
-                if (!string.IsNullOrEmpty(existingIsbn))
+            // Using 'query' here as the fallback like we fixed earlier!
+            if ((searchResponse == null || searchResponse.NumFound == 0) && !string.IsNullOrWhiteSpace(query))
+            {
+                searchResponse = await _openLibraryClient.SearchAsync(query!, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (searchResponse?.Docs != null)
+            {
+                foreach (var doc in searchResponse.Docs)
                 {
-                    searchResponse = await _openLibraryClient.SearchByIsbnAsync(existingIsbn!, cancellationToken).ConfigureAwait(false);
+                    if (string.IsNullOrEmpty(doc.Title)) continue;
+                    openLibraryResults.Add(MapOpenLibraryResult(doc));
                 }
+            }
 
-                if ((searchResponse == null || searchResponse.NumFound == 0) && !string.IsNullOrWhiteSpace(searchQuery))
-                {
-                    searchResponse = await _openLibraryClient.SearchAsync(searchQuery!, cancellationToken).ConfigureAwait(false);
-                }
-
-                if (searchResponse?.Docs != null)
-                {
-                    foreach (var doc in searchResponse.Docs)
-                    {
-                        if (string.IsNullOrEmpty(doc.Title))
-                        {
-                            continue;
-                        }
-
-                        openLibraryResults.Add(MapOpenLibraryResult(doc));
-                    }
-                }
-
-                lock (results)
-                {
-                    results.AddRange(openLibraryResults);
-                }
+            lock (results)
+            {
+                results.AddRange(openLibraryResults);
+            }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Open Library search failed or timed out for query '{Query}'", query);
+            }
             }, cancellationToken));
         }
 
@@ -465,30 +471,26 @@ public class InglenookController : ControllerBase
         }
         else if (string.Equals(request.Provider, "openlibrary", StringComparison.OrdinalIgnoreCase))
         {
-            // For Open Library, the ProviderId is the work key (e.g., "/works/OL18191919W").
-            // Re-search by the work's ISBN to get full metadata, since we stored the search result.
-            // The search result already has all the fields we need, so we apply from what's cached
-            // in the request. For a fresh lookup, search by the work key's ISBNs.
-            var isbn = item.GetProviderId("isbn");
-            OpenLibrarySearchResponse? searchResponse = null;
-
-            if (!string.IsNullOrEmpty(isbn))
-            {
-                searchResponse = await _openLibraryClient.SearchByIsbnAsync(isbn, cancellationToken).ConfigureAwait(false);
-            }
-
-            if (searchResponse == null || searchResponse.NumFound == 0)
-            {
-                // Fall back to searching by title
-                searchResponse = await _openLibraryClient.SearchAsync(item.Name, cancellationToken).ConfigureAwait(false);
-            }
+            // 1. Try to search Open Library using the specific Work ID (stripping "/works/" if present)
+            var queryId = request.ProviderId.Replace("/works/", "");
+            var searchResponse = await _openLibraryClient.SearchAsync(queryId, cancellationToken).ConfigureAwait(false);
 
             var doc = searchResponse?.Docs?.FirstOrDefault(d => d.Key == request.ProviderId)
                 ?? searchResponse?.Docs?.FirstOrDefault();
 
+            // 2. If the ID search didn't return the document, fall back to the item's name
+            if (doc == null && !string.IsNullOrWhiteSpace(item.Name))
+            {
+                searchResponse = await _openLibraryClient.SearchAsync(item.Name, cancellationToken).ConfigureAwait(false);
+
+                doc = searchResponse?.Docs?.FirstOrDefault(d => d.Key == request.ProviderId)
+                    ?? searchResponse?.Docs?.FirstOrDefault();
+            }
+
+            // 3. If we STILL can't find it, then we officially fail.
             if (doc == null)
             {
-                return BadRequest("Could not fetch metadata from Open Library");
+                return BadRequest($"Could not fetch metadata from Open Library for {request.ProviderId}");
             }
 
             await ApplyOpenLibraryMetadata(item, doc, replace, cancellationToken).ConfigureAwait(false);
@@ -556,7 +558,7 @@ public class InglenookController : ControllerBase
         var parent = item.GetParent();
         await _libraryManager.UpdateItemAsync(item, parent, ItemUpdateType.MetadataEdit, cancellationToken).ConfigureAwait(false);
 
-        _logger.LogInformation("Updated series for item {ItemName} to {SeriesName} (Index: {SeriesIndex})", 
+        _logger.LogInformation("Updated series for item {ItemName} to {SeriesName} (Index: {SeriesIndex})",
             item.Name, request.SeriesName, request.SeriesIndex);
 
         return Ok(new { Success = true });
