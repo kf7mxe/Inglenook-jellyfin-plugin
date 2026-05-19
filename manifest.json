@@ -7,9 +7,17 @@
     "owner": "Inglenook",
     "category": "Metadata",
     "versions": [
+            {
+        "version": "1.1.0.3",
+        "changelog": "more identify endpoint fixes",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/kf7mxe/Inglenook-jellyfin-plugin/releases/download/v1.1.0.3/Inglenook-1.1.0.3.zip",
+        "checksum": "6d6fd4063c816882b4efd8a55b0774b3",
+        "timestamp": "2026-05-19T05:06:22Z"
+      },
       {
         "version": "1.1.0.2",
-        "changelog": "... (update this) ...",
+        "changelog": "Another identify endpoint fix",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/kf7mxe/Inglenook-jellyfin-plugin/releases/download/v1.1.0.2/Inglenook-1.1.0.2.zip",
         "checksum": "a576540aac8b9a9401aa579d584adc1e",
