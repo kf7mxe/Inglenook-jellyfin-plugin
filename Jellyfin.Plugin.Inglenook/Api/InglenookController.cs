@@ -470,27 +470,26 @@ public class InglenookController : ControllerBase
             await ApplyGoogleBooksMetadata(item, volume, replace, cancellationToken).ConfigureAwait(false);
         }
         else if (string.Equals(request.Provider, "openlibrary", StringComparison.OrdinalIgnoreCase))
-        {
-            // 1. Try to search Open Library using the specific Work ID (stripping "/works/" if present)
-            var queryId = request.ProviderId.Replace("/works/", "");
-            var searchResponse = await _openLibraryClient.SearchAsync(queryId, cancellationToken).ConfigureAwait(false);
+        {// 1. Use strict Solr syntax to query the exact key (e.g., key:"/works/OL53919W")
+            var searchQuery = $"key:\"{request.ProviderId}\"";
+            var searchResponse = await _openLibraryClient.SearchAsync(searchQuery, cancellationToken).ConfigureAwait(false);
 
-            var doc = searchResponse?.Docs?.FirstOrDefault(d => d.Key == request.ProviderId)
-                ?? searchResponse?.Docs?.FirstOrDefault();
+            // 2. ONLY accept the document if the Key matches exactly. 
+            // We removed the "?? FirstOrDefault()" fallback so it never blindly applies random books!
+            var doc = searchResponse?.Docs?.FirstOrDefault(d => string.Equals(d.Key, request.ProviderId, StringComparison.OrdinalIgnoreCase));
 
-            // 2. If the ID search didn't return the document, fall back to the item's name
-            if (doc == null && !string.IsNullOrWhiteSpace(item.Name))
-            {
-                searchResponse = await _openLibraryClient.SearchAsync(item.Name, cancellationToken).ConfigureAwait(false);
-
-                doc = searchResponse?.Docs?.FirstOrDefault(d => d.Key == request.ProviderId)
-                    ?? searchResponse?.Docs?.FirstOrDefault();
-            }
-
-            // 3. If we STILL can't find it, then we officially fail.
+            // 3. If Open Library's strict query fails, try a fallback search but STILL demand an exact key match
             if (doc == null)
             {
-                return BadRequest($"Could not fetch metadata from Open Library for {request.ProviderId}");
+                var fallbackQuery = request.ProviderId.Replace("/works/", "");
+                searchResponse = await _openLibraryClient.SearchAsync(fallbackQuery, cancellationToken).ConfigureAwait(false);
+                
+                doc = searchResponse?.Docs?.FirstOrDefault(d => string.Equals(d.Key, request.ProviderId, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (doc == null)
+            {
+                return BadRequest($"Could not fetch the exact metadata match from Open Library for key: {request.ProviderId}");
             }
 
             await ApplyOpenLibraryMetadata(item, doc, replace, cancellationToken).ConfigureAwait(false);
