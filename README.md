@@ -22,6 +22,16 @@ Designed to be used with [Inglenook](https://github.com/kf7mxe/inglenook), an au
 
 - **Built-in web client hosting** - Automatically downloads and serves the [Inglenook](https://github.com/kf7mxe/inglenook) web client from GitHub releases at `/Inglenook/App`, with automatic update checks. Can be toggled on/off in plugin settings.
 
+## Roadmap: Phase 2 (Coming Soon)
+
+We are currently planning Phase 2, which focuses on **AI-Powered Media Transformation**:
+
+- **Ebook to Audiobook (TTS):** Convert ebooks into audiobooks using advanced models like Qwen3-Audio. Includes voice mimicking, LLM-enhanced speech (SSML/emotional cues), and automatic M4B assembly.
+- **Audiobook to Ebook (STT):** High-accuracy transcription using Whisper. Features a specialized **"Name Fixer" UI** that uses LLMs to identify mistranslated names and allows users to verify them with contextual audio snippets.
+- **Service-Oriented AI:** Flexible integration with local (Ollama, Whisper-ASR) and cloud (OpenAI, Groq) AI services.
+- **Job Management:** Dedicated dashboard for monitoring long-running conversion tasks and logs.
+- **EPUB/M4B Generation:** High-quality output files with preserved metadata, covers, and Table of Contents.
+
 ## Supported Metadata
 
 | Field | OPF | JSON | NFO | FFmeta | CUE | TXT |
