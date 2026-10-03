@@ -6,7 +6,7 @@
   "name": "Inglenook",
   "overview": "Audiobook chapter and metadata extraction from sidecar files",
   "owner": "Inglenook",
-  "targetAbi": "10.11.0.0",
+  "targetAbi": "12.0.0.0",
   "timestamp": "2026-03-28T00:00:00.0000000Z",
   "version": "1.1.0.0",
   "status": "Active",

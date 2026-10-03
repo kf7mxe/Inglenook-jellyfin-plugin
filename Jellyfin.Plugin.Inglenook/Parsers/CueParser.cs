@@ -48,6 +48,18 @@ public partial class CueParser : IMetadataParser
     [GeneratedRegex(@"^ISRC\s+(\S+)$", RegexOptions.IgnoreCase)]
     private static partial Regex IsrcRegex();
 
+    [GeneratedRegex(@"^REM\s+SERIES\s+""?(.+?)""?$", RegexOptions.IgnoreCase)]
+    private static partial Regex RemSeriesRegex();
+
+    [GeneratedRegex(@"^REM\s+SERIESNUMBER\s+(\d+\.?\d*)$", RegexOptions.IgnoreCase)]
+    private static partial Regex RemSeriesNumberRegex();
+
+    [GeneratedRegex(@"^SERIES\s+""?(.+?)""?$", RegexOptions.IgnoreCase)]
+    private static partial Regex SeriesRegex();
+
+    [GeneratedRegex(@"^SERIESNUMBER\s+(\d+\.?\d*)$", RegexOptions.IgnoreCase)]
+    private static partial Regex SeriesNumberRegex();
+
     /// <inheritdoc />
     public bool CanParse(string filePath)
     {
@@ -208,6 +220,42 @@ public partial class CueParser : IMetadataParser
                     if (!metadata.Narrators.Contains(narrator, StringComparer.OrdinalIgnoreCase))
                     {
                         metadata.Narrators.Add(narrator);
+                    }
+
+                    continue;
+                }
+
+                var remSeriesMatch = RemSeriesRegex().Match(line);
+                if (remSeriesMatch.Success)
+                {
+                    metadata.SeriesName = remSeriesMatch.Groups[1].Value;
+                    continue;
+                }
+
+                var remSeriesNumberMatch = RemSeriesNumberRegex().Match(line);
+                if (remSeriesNumberMatch.Success)
+                {
+                    if (float.TryParse(remSeriesNumberMatch.Groups[1].Value, out var seriesIndex))
+                    {
+                        metadata.SeriesIndex = seriesIndex;
+                    }
+
+                    continue;
+                }
+
+                var seriesMatch = SeriesRegex().Match(line);
+                if (seriesMatch.Success)
+                {
+                    metadata.SeriesName = seriesMatch.Groups[1].Value;
+                    continue;
+                }
+
+                var seriesNumberMatch = SeriesNumberRegex().Match(line);
+                if (seriesNumberMatch.Success)
+                {
+                    if (float.TryParse(seriesNumberMatch.Groups[1].Value, out var seriesIndex))
+                    {
+                        metadata.SeriesIndex = seriesIndex;
                     }
 
                     continue;
